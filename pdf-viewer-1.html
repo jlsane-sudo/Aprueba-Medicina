@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
+<title>Temario · Aprueba Medicina</title>
+<style>
+:root{--brand:#0b3443;--bg:#eef3f4;--ink:#102f3a;--muted:#65777c}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}
+header{position:sticky;top:0;z-index:10;background:var(--brand);color:#fff;padding:10px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px #0002;padding-top:max(10px,env(safe-area-inset-top))}
+header b{margin-right:auto}.ctrl{border:1px solid #ffffff55;background:#ffffff12;color:#fff;border-radius:9px;padding:8px 11px;font:inherit}.pagebox{display:flex;align-items:center;gap:6px}.pagebox input{width:62px;padding:7px;border-radius:8px;border:0;text-align:center}
+#wrap{padding:14px;display:flex;justify-content:center;min-height:calc(100vh - 58px);overflow:auto}
+#canvas{display:block;background:#fff;max-width:100%;height:auto;box-shadow:0 4px 18px #0002;image-rendering:auto}
+#status{padding:30px;text-align:center;color:var(--muted)}
+@media(max-width:600px){header{gap:6px;padding:8px;padding-top:max(8px,env(safe-area-inset-top))}.ctrl{padding:7px 9px}.brandText{display:none}#wrap{padding:4px}.pagebox input{width:52px}}
+</style>
+</head>
+<body>
+<header>
+  <b>+ <span class="brandText">APRUEBA MEDICINA</span></b>
+  <button class="ctrl" id="prev" aria-label="Página anterior">←</button>
+  <div class="pagebox"><input id="page" type="number" min="1" value="1"><span id="total">/ —</span></div>
+  <button class="ctrl" id="next" aria-label="Página siguiente">→</button>
+  <button class="ctrl" id="minus" aria-label="Reducir zoom">−</button>
+  <button class="ctrl" id="plus" aria-label="Aumentar zoom">+</button>
+</header>
+<div id="wrap"><div id="status">Abriendo el temario…</div><canvas id="canvas" hidden></canvas></div>
+<script type="module">
+import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
+
+const params=new URLSearchParams(location.search);
+const file=params.get('file');
+let pageNum=Math.max(1,parseInt(params.get('page')||'1',10)||1);
+let pdf=null,zoom=1,rendering=false,pending=null,lastCssWidth=0;
+
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d',{alpha:false});
+const status=document.getElementById('status');
+const pageInput=document.getElementById('page');
+const total=document.getElementById('total');
+
+function getDeviceScale(){
+  const dpr=window.devicePixelRatio||1;
+  // En móviles de alta densidad, 2.5-3x evita el aspecto pixelado sin disparar la memoria.
+  return Math.min(Math.max(dpr,2),3);
+}
+
+async function renderPage(n){
+  if(!pdf)return;
+  if(rendering){pending=n;return}
+  rendering=true;
+  pageNum=Math.min(Math.max(1,n),pdf.numPages);
+  pageInput.value=pageNum;
+  history.replaceState(null,'','?file='+encodeURIComponent(file)+'&page='+pageNum);
+
+  try{
+    const pg=await pdf.getPage(pageNum);
+    const base=pg.getViewport({scale:1});
+    const availableWidth=Math.max(280,Math.min(document.documentElement.clientWidth-8,1100));
+    const cssScale=(availableWidth/base.width)*zoom;
+    const cssViewport=pg.getViewport({scale:cssScale});
+    const outputScale=getDeviceScale();
+
+    // El canvas interno se crea a resolución física alta; CSS mantiene el tamaño visual.
+    canvas.width=Math.max(1,Math.floor(cssViewport.width*outputScale));
+    canvas.height=Math.max(1,Math.floor(cssViewport.height*outputScale));
+    canvas.style.width=Math.floor(cssViewport.width)+'px';
+    canvas.style.height=Math.floor(cssViewport.height)+'px';
+    lastCssWidth=cssViewport.width;
+
+    canvas.hidden=false;
+    status.hidden=true;
+
+    const renderViewport=pg.getViewport({scale:cssScale*outputScale});
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.fillStyle='#fff';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    await pg.render({canvasContext:ctx,viewport:renderViewport,background:'#ffffff'}).promise;
+  }catch(e){
+    status.hidden=false;
+    status.textContent='No se pudo representar esta página.';
+    console.error(e);
+  }finally{
+    rendering=false;
+    if(pending!==null){const p=pending;pending=null;renderPage(p)}
+  }
+}
+
+if(!file){
+  status.textContent='No se ha recibido el documento.';
+}else{
+  try{
+    pdf=await pdfjsLib.getDocument({url:file}).promise;
+    total.textContent='/ '+pdf.numPages;
+    pageNum=Math.min(pageNum,pdf.numPages);
+    await renderPage(pageNum);
+  }catch(e){
+    status.textContent='No se pudo abrir el temario. Vuelve atrás y prueba de nuevo.';
+    console.error(e);
+  }
+}
+
+document.getElementById('prev').onclick=()=>renderPage(pageNum-1);
+document.getElementById('next').onclick=()=>renderPage(pageNum+1);
+document.getElementById('plus').onclick=()=>{zoom=Math.min(2.5,zoom+.15);renderPage(pageNum)};
+document.getElementById('minus').onclick=()=>{zoom=Math.max(.65,zoom-.15);renderPage(pageNum)};
+pageInput.onchange=()=>renderPage(parseInt(pageInput.value||'1',10));
+
+let resizeTimer=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{
+    const newWidth=document.documentElement.clientWidth;
+    if(Math.abs(newWidth-lastCssWidth)>24)renderPage(pageNum);
+  },180);
+});
+</script>
+</body>
+</html>
