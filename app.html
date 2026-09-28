@@ -146,6 +146,7 @@ const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const storage=client.storage.from('medicine-private');
 const ANATOMIA_MANUAL_FILE='anatomia-manual.pdf';
 const ANATOMIA_TOPIC_PAGES={1:4,2:8,3:11,4:15,5:18,6:22,7:26,8:29,9:33,10:37,11:41,12:44,13:47,14:50,15:56,16:59,17:63,18:66,19:69,20:73,21:77,22:80,23:85,24:89,25:92,26:96,27:100,28:104};
+const BCH_TOPIC_PAGES={1:4,2:5,3:6,4:7,5:8,6:9,7:10,8:11,9:12,10:13,11:14,12:15,13:16,14:17,15:18,16:19,17:20,18:21,19:22,20:23,21:24,22:25,23:26,24:27,25:28,26:29,27:30,28:31,29:32,30:33};
 const $=s=>document.querySelector(s); const $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const subjects=[
@@ -166,6 +167,14 @@ const feedbackStatusNames={open:'Pendiente',in_review:'En revisión',resolved:'R
 function anatomyTopicNumber(t){const ts=topics.filter(x=>x.subject==='anatomia').slice().sort((a,b)=>(a.position||0)-(b.position||0));return Math.max(1,ts.findIndex(x=>x.id===t?.id)+1)}
 function locatorPage(locator){const m=String(locator||'').match(/p[aá]g(?:ina)?s?\.?\s*(\d+)/i);return m?Number(m[1]):null}
 function sourceLabel(q,t){
+  if(t?.subject==='histologia'){
+    const loc=String(q?.source_locator||'').trim();
+    if(loc&&/Manual Aprueba Medicina/i.test(loc)) return `Fuente: ${loc}`;
+    const ts=topics.filter(x=>x.subject==='histologia').slice().sort((a,b)=>(a.position||0)-(b.position||0));
+    const n=Math.max(1,ts.findIndex(x=>x.id===t?.id)+1);
+    const p=locatorPage(q?.source_locator)||BCH_TOPIC_PAGES[n]||t?.page_start||1;
+    return `Fuente: Manual Aprueba Medicina · Tema ${String(n).padStart(2,'0')} · pág. ${p}`;
+  }
   if(t?.subject==='anatomia'){
     const n=anatomyTopicNumber(t),p=locatorPage(q?.source_locator)||ANATOMIA_TOPIC_PAGES[n]||1;
     return `Fuente: Manual Aprueba Medicina · Tema ${String(n).padStart(2,'0')} · pág. ${p}`;
