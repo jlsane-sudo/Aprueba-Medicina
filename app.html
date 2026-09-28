@@ -13,6 +13,21 @@
 @media(max-width:760px){.admin-modal-grid{grid-template-columns:1fr}.admin-modal-grid .wide{grid-column:auto}.admin-file{grid-template-columns:1fr}.admin-toolbar{display:grid;grid-template-columns:1fr}.admin-table{min-width:680px}}
 </style>
   <style>.sourcebtn{width:100%;margin-top:12px;background:#e9f8f3;border:1px solid #229878;color:#0b5648;border-radius:14px;padding:13px 15px;cursor:pointer;font-weight:700;display:flex;align-items:center;gap:12px;text-align:left}.sourcebtn:hover{background:#ddf4ec}.sourcebtn>span:first-child{font-size:1.35rem}.sourcebtn>span:last-child{display:grid;gap:2px}.sourcebtn small{font-weight:500;color:#55736d}.sourcebtn:disabled{opacity:.7;cursor:wait}</style>
+
+  <style id="site-news-styles">
+    .site-news{margin:0 0 32px;padding:24px;background:var(--white);border:1px solid var(--line);border-radius:20px}
+    .site-news-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .site-news h2{margin:6px 0 0;font-size:1.5rem}
+    .site-news-intro{margin:12px 0 20px;color:var(--muted);line-height:1.55}
+    .site-news-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+    .site-news-list>li{min-width:0}
+    .site-news-item{height:100%;border-top:3px solid var(--teal);padding-top:16px}
+    .site-news-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .site-news-meta time{font-size:.8rem;color:#557078}
+    .site-news h3{font-size:1rem;line-height:1.45;margin:12px 0 8px}
+    .site-news-item p{font-size:.94rem;line-height:1.6;color:#49616a;margin:0}
+    @media(max-width:720px){.site-news{padding:20px}.site-news-list{grid-template-columns:1fr;gap:22px}}
+  </style>
 </head>
 <body>
 <section id="auth" class="auth-shell">
@@ -62,6 +77,16 @@
         <div class="stats"><div><strong id="topicCount">—</strong><span>temas</span></div><div><strong id="questionCount">—</strong><span>preguntas</span></div></div>
       </div>
       <div class="availability-note"><b>Estamos creciendo.</b> Mientras incorporamos el resto de asignaturas, podéis ir estudiando y practicando con todo lo que ya está disponible. <b>¡Suerte!</b></div>
+      <!-- Novedades: publicar solo cambios ya disponibles; añadir los nuevos al principio y actualizar la versión del pie. -->
+      <section class="site-news" aria-labelledby="newsTitle">
+        <div class="site-news-heading"><div><span class="kicker">AL DÍA</span><h2 id="newsTitle">Novedades</h2></div><span class="badge">Actualizaciones de la web</span></div>
+        <p class="site-news-intro">Nuevos materiales, preguntas revisadas y mejoras para tu estudio.</p>
+        <ol class="site-news-list">
+          <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-28">28 de septiembre de 2026</time><span class="badge">Web</span></div><h3>Estrenamos la sección de novedades</h3><p>Consulta aquí los cambios publicados en Aprueba Medicina. Encontrarás la fecha y la asignatura de cada actualización.</p></article></li>
+          <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-28">28 de septiembre de 2026</time><span class="badge">Bioquímica</span></div><h3>Acceso a Bioquímica activado</h3><p>Bioquímica ya aparece como asignatura activa y en el selector de tests.</p></article></li>
+          <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-27">27 de septiembre de 2026</time><span class="badge">Tests</span></div><h3>Practica también con los temas que tienen menos de 50 preguntas</h3><p>El test utiliza las preguntas disponibles, hasta un máximo de 50. Los temas sin preguntas siguen indicando que están en preparación.</p></article></li>
+        </ol>
+      </section>
       <h2>Asignaturas</h2>
       <div id="homeSubjects" class="cards"></div>
     </section>
@@ -111,7 +136,7 @@
 </div>
 
 <footer aria-label="Información de la versión" style="padding:20px 16px;text-align:center;font-size:.8rem;line-height:1.6;color:#557078;background:#f4f7f8;border-top:1px solid #d8e2e4">
-  Última actualización: <time datetime="2026-09">septiembre de 2026</time> · Versión 1.0.3
+  Última actualización: <time datetime="2026-09-28">septiembre de 2026</time> · Versión 1.0.4
 </footer>
 <dialog id="modal"><button class="close" id="closeModal">×</button><div id="modalContent"></div></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
