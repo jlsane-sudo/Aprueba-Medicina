@@ -82,7 +82,7 @@
         <div class="site-news-heading"><div><span class="kicker">AL DÍA</span><h2 id="newsTitle">Novedades</h2></div><span class="badge">Actualizaciones de la web</span></div>
         <p class="site-news-intro">Nuevos materiales, preguntas revisadas y mejoras para tu estudio.</p>
         <ol class="site-news-list">
-          <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-29">29 de septiembre de 2026</time><span class="badge">Biología</span></div><h3>Biología: nuevo manual publicado</h3><p>Ya está disponible la nueva versión de Biología Celular e Histología, reconstruida a partir de los apuntes reales aportados para la asignatura. Reúne los 30 temas en 103 páginas, conserva explicaciones, esquemas, tablas y figuras útiles, y los accesos por tema y las explicaciones de los test ya apuntan a esta versión.</p></article></li>
+          <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-29">29 de septiembre de 2026</time><span class="badge">Biología</span></div><h3>Biología: nuevo manual publicado</h3><p>Ya está disponible la nueva versión de Biología Celular e Histología, reconstruida a partir de los apuntes reales aportados para la asignatura. Reúne los 30 temas en 106 páginas, conserva explicaciones, esquemas, tablas y figuras útiles, y los accesos por tema y las explicaciones de los test ya apuntan a esta versión.</p></article></li>
           <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-28">28 de septiembre de 2026</time><span class="badge">Web</span></div><h3>Estrenamos la sección de novedades</h3><p>Consulta aquí los cambios publicados en Aprueba Medicina. Encontrarás la fecha y la asignatura de cada actualización.</p></article></li>
           <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-28">28 de septiembre de 2026</time><span class="badge">Bioquímica</span></div><h3>Acceso a Bioquímica activado</h3><p>Bioquímica ya aparece como asignatura activa y en el selector de tests.</p></article></li>
           <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-27">27 de septiembre de 2026</time><span class="badge">Tests</span></div><h3>Practica también con los temas que tienen menos de 50 preguntas</h3><p>El test utiliza las preguntas disponibles, hasta un máximo de 50. Los temas sin preguntas siguen indicando que están en preparación.</p></article></li>
@@ -137,7 +137,7 @@
 </div>
 
 <footer aria-label="Información de la versión" style="padding:20px 16px;text-align:center;font-size:.8rem;line-height:1.6;color:#557078;background:#f4f7f8;border-top:1px solid #d8e2e4">
-  Última actualización: <time datetime="2026-09-29">29 de septiembre de 2026</time> · Versión 1.0.9
+  Última actualización: <time datetime="2026-09-29">29 de septiembre de 2026</time> · Versión 1.0.10
 </footer>
 <dialog id="modal"><button class="close" id="closeModal">×</button><div id="modalContent"></div></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
@@ -147,7 +147,7 @@ const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const storage=client.storage.from('medicine-private');
 const ANATOMIA_MANUAL_FILE='anatomia-manual.pdf';
 const ANATOMIA_TOPIC_PAGES={1:4,2:8,3:11,4:15,5:18,6:22,7:26,8:29,9:33,10:37,11:41,12:44,13:47,14:50,15:56,16:59,17:63,18:66,19:69,20:73,21:77,22:80,23:85,24:89,25:92,26:96,27:100,28:104};
-const BCH_TOPIC_PAGES={1:4,2:7,3:11,4:15,5:20,6:24,7:27,8:30,9:33,10:36,11:40,12:45,13:49,14:53,15:57,16:58,17:61,18:65,19:68,20:71,21:73,22:76,23:80,24:83,25:87,26:89,27:90,28:94,29:97,30:100};
+const BCH_TOPIC_PAGES={1:4,2:7,3:11,4:15,5:20,6:24,7:27,8:30,9:33,10:36,11:40,12:45,13:49,14:53,15:57,16:58,17:61,18:65,19:68,20:71,21:73,22:76,23:80,24:83,25:87,26:89,27:93,28:97,29:100,30:103};
 const $=s=>document.querySelector(s); const $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const subjects=[
