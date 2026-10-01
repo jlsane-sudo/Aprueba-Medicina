@@ -18,15 +18,21 @@
     .site-news{margin:0 0 32px;padding:24px;background:var(--white);border:1px solid var(--line);border-radius:20px}
     .site-news-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
     .site-news h2{margin:6px 0 0;font-size:1.5rem}
-    .site-news-intro{margin:12px 0 20px;color:var(--muted);line-height:1.55}
-    .site-news-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
-    .site-news-list>li{min-width:0}
-    .site-news-item{height:100%;border-top:3px solid var(--teal);padding-top:16px}
-    .site-news-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .site-news-intro{margin:12px 0 16px;color:var(--muted);line-height:1.55}
+    .site-news-list{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:14px;max-height:320px;overflow-y:auto;background:#fbfdfd;scrollbar-gutter:stable}
+    .site-news-list>li+li{border-top:1px solid var(--line)}
+    .site-news-item{margin:0}
+    .site-news-item summary{list-style:none;cursor:pointer;padding:14px 44px 14px 16px;position:relative;font-weight:700;line-height:1.35;color:var(--ink);background:#fff}
+    .site-news-item summary::-webkit-details-marker{display:none}
+    .site-news-item summary:hover{background:var(--soft)}
+    .site-news-item summary:focus-visible{outline:3px solid #7fd6c7;outline-offset:-3px}
+    .site-news-item summary::after{content:"▾";position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--teal);font-size:1rem;transition:transform .18s ease}
+    .site-news-item[open] summary::after{transform:translateY(-50%) rotate(180deg)}
+    .site-news-detail{padding:0 16px 16px;background:#fff}
+    .site-news-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:9px}
     .site-news-meta time{font-size:.8rem;color:#557078}
-    .site-news h3{font-size:1rem;line-height:1.45;margin:12px 0 8px}
-    .site-news-item p{font-size:.94rem;line-height:1.6;color:#49616a;margin:0}
-    @media(max-width:720px){.site-news{padding:20px}.site-news-list{grid-template-columns:1fr;gap:22px}}
+    .site-news-detail p{font-size:.94rem;line-height:1.6;color:#49616a;margin:0}
+    @media(max-width:720px){.site-news{padding:20px}.site-news-list{max-height:280px}.site-news-item summary{padding:13px 40px 13px 14px}}
   </style>
 </head>
 <body>
@@ -80,16 +86,16 @@
       <!-- Novedades: publicar solo cambios ya disponibles; añadir los nuevos al principio y actualizar la versión del pie. -->
       <section class="site-news" aria-labelledby="newsTitle">
         <div class="site-news-heading"><div><span class="kicker">AL DÍA</span><h2 id="newsTitle">Novedades</h2></div><span class="badge">Actualizaciones de la web</span></div>
-        <p class="site-news-intro">Nuevos materiales, preguntas revisadas y mejoras para tu estudio.</p>
+        <p class="site-news-intro">Consulta los últimos cambios. Pulsa un título para ver el detalle.</p>
         <ol class="site-news-list">
-          <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-10-01">1 de octubre de 2026</time><span class="badge">Epidemiología</span></div><h3>Epidemiología: banco ampliado por temas</h3><p>Completada una nueva fase de ampliación y revisión: los 20 temas disponen ya de al menos 20 preguntas activas y validadas. El banco de Epidemiología alcanza 401 preguntas, todas con cuatro alternativas, respuesta, explicación y referencia al material. También se han corregido los rangos reales de páginas de los temas 1, 6 y 19.</p></article></li>
-          <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-10-01">1 de octubre de 2026</time><span class="badge">Epidemiología</span></div><h3>Epidemiología: auditoría semántica del banco</h3><p>Revisadas las 110 preguntas activas: enunciados, respuestas, explicaciones, referencias y distractores. Se han corregido formulaciones ambiguas, afinado ejercicios de incidencia y mortalidad, mejorado alternativas demasiado obvias y equilibrado la posición de las respuestas correctas para evitar patrones de test.</p></article></li>
-          <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-30">30 de septiembre de 2026</time><span class="badge">Epidemiología</span></div><h3>Epidemiología: revisión ampliada de materiales y test</h3><p>Revisados los 20 temas, el manual navegable y el banco activo. El banco pasa de 50 a 110 preguntas, con cobertura en los 20 temas; se han reforzado especialmente muestreo, estudios descriptivos, experimentales, pruebas diagnósticas y sesgos. También se han mejorado distractores, referencias y accesos directos al tema correspondiente.</p></article></li>
-          <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-30">30 de septiembre de 2026</time><span class="badge">Biología</span></div><h3>Biología: revisión de accesos y preguntas</h3><p>Acceso directo al manual completo de 106 páginas y consulta del material al acertar o fallar. Se han corregido 122 preguntas: 41 con mejoras de contenido y 94 con referencias revisadas; algunas reúnen ambas mejoras. La revisión didáctica del banco continúa.</p></article></li>
-          <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-29">29 de septiembre de 2026</time><span class="badge">Biología</span></div><h3>Biología: nuevo manual publicado</h3><p>Ya está disponible la nueva versión de Biología Celular e Histología, reconstruida a partir de los apuntes reales aportados para la asignatura. Reúne los 30 temas en 106 páginas, conserva explicaciones, esquemas, tablas y figuras útiles, y los accesos por tema y las explicaciones de los test ya apuntan a esta versión.</p></article></li>
-          <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-28">28 de septiembre de 2026</time><span class="badge">Web</span></div><h3>Estrenamos la sección de novedades</h3><p>Consulta aquí los cambios publicados en Aprueba Medicina. Encontrarás la fecha y la asignatura de cada actualización.</p></article></li>
-          <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-28">28 de septiembre de 2026</time><span class="badge">Bioquímica</span></div><h3>Acceso a Bioquímica activado</h3><p>Bioquímica ya aparece como asignatura activa y en el selector de tests.</p></article></li>
-          <li><article class="site-news-item"><div class="site-news-meta"><time datetime="2026-09-27">27 de septiembre de 2026</time><span class="badge">Tests</span></div><h3>Practica también con los temas que tienen menos de 50 preguntas</h3><p>El test utiliza las preguntas disponibles, hasta un máximo de 50. Los temas sin preguntas siguen indicando que están en preparación.</p></article></li>
+          <li><details class="site-news-item"><summary>Epidemiología: banco ampliado por temas</summary><div class="site-news-detail"><div class="site-news-meta"><time datetime="2026-10-01">1 de octubre de 2026</time><span class="badge">Epidemiología</span></div><p>Completada una nueva fase de ampliación y revisión: los 20 temas disponen ya de al menos 20 preguntas activas y validadas. El banco de Epidemiología alcanza 401 preguntas, todas con cuatro alternativas, respuesta, explicación y referencia al material. También se han corregido los rangos reales de páginas de los temas 1, 6 y 19.</p></div></details></li>
+          <li><details class="site-news-item"><summary>Epidemiología: auditoría semántica del banco</summary><div class="site-news-detail"><div class="site-news-meta"><time datetime="2026-10-01">1 de octubre de 2026</time><span class="badge">Epidemiología</span></div><p>Revisadas las 110 preguntas activas: enunciados, respuestas, explicaciones, referencias y distractores. Se han corregido formulaciones ambiguas, afinado ejercicios de incidencia y mortalidad, mejorado alternativas demasiado obvias y equilibrado la posición de las respuestas correctas para evitar patrones de test.</p></div></details></li>
+          <li><details class="site-news-item"><summary>Epidemiología: revisión ampliada de materiales y test</summary><div class="site-news-detail"><div class="site-news-meta"><time datetime="2026-09-30">30 de septiembre de 2026</time><span class="badge">Epidemiología</span></div><p>Revisados los 20 temas, el manual navegable y el banco activo. El banco pasa de 50 a 110 preguntas, con cobertura en los 20 temas; se han reforzado especialmente muestreo, estudios descriptivos, experimentales, pruebas diagnósticas y sesgos. También se han mejorado distractores, referencias y accesos directos al tema correspondiente.</p></div></details></li>
+          <li><details class="site-news-item"><summary>Biología: revisión de accesos y preguntas</summary><div class="site-news-detail"><div class="site-news-meta"><time datetime="2026-09-30">30 de septiembre de 2026</time><span class="badge">Biología</span></div><p>Acceso directo al manual completo de 106 páginas y consulta del material al acertar o fallar. Se han corregido 122 preguntas: 41 con mejoras de contenido y 94 con referencias revisadas; algunas reúnen ambas mejoras. La revisión didáctica del banco continúa.</p></div></details></li>
+          <li><details class="site-news-item"><summary>Biología: nuevo manual publicado</summary><div class="site-news-detail"><div class="site-news-meta"><time datetime="2026-09-29">29 de septiembre de 2026</time><span class="badge">Biología</span></div><p>Ya está disponible la nueva versión de Biología Celular e Histología, reconstruida a partir de los apuntes reales aportados para la asignatura. Reúne los 30 temas en 106 páginas, conserva explicaciones, esquemas, tablas y figuras útiles, y los accesos por tema y las explicaciones de los test ya apuntan a esta versión.</p></div></details></li>
+          <li><details class="site-news-item"><summary>Estrenamos la sección de novedades</summary><div class="site-news-detail"><div class="site-news-meta"><time datetime="2026-09-28">28 de septiembre de 2026</time><span class="badge">Web</span></div><p>Consulta aquí los cambios publicados en Aprueba Medicina. Encontrarás la fecha y la asignatura de cada actualización.</p></div></details></li>
+          <li><details class="site-news-item"><summary>Acceso a Bioquímica activado</summary><div class="site-news-detail"><div class="site-news-meta"><time datetime="2026-09-28">28 de septiembre de 2026</time><span class="badge">Bioquímica</span></div><p>Bioquímica ya aparece como asignatura activa y en el selector de tests.</p></div></details></li>
+          <li><details class="site-news-item"><summary>Practica también con los temas que tienen menos de 50 preguntas</summary><div class="site-news-detail"><div class="site-news-meta"><time datetime="2026-09-27">27 de septiembre de 2026</time><span class="badge">Tests</span></div><p>El test utiliza las preguntas disponibles, hasta un máximo de 50. Los temas sin preguntas siguen indicando que están en preparación.</p></div></details></li>
         </ol>
       </section>
       <h2>Asignaturas</h2>
@@ -141,7 +147,7 @@
 </div>
 
 <footer aria-label="Información de la versión" style="padding:20px 16px;text-align:center;font-size:.8rem;line-height:1.6;color:#557078;background:#f4f7f8;border-top:1px solid #d8e2e4">
-  Última actualización: <time datetime="2026-10-01">1 de octubre de 2026</time> · Versión 1.0.17
+  Última actualización: <time datetime="2026-10-01">1 de octubre de 2026</time> · Versión 1.0.18
 </footer>
 <dialog id="modal"><button class="close" id="closeModal">×</button><div id="modalContent"></div></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
