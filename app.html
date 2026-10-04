@@ -209,6 +209,8 @@ function sourceLabel(q,t){
   }
   if(t?.subject==='epidemiologia') return `Fuente de estudio: Manual Aprueba Medicina · Epidemiología · ${esc(t.title)}`;
   if(t?.subject==='introduccion'){
+    const loc=String(q?.source_locator||'').trim();
+    if(loc&&/Manual Aprueba Medicina HICS/i.test(loc)) return `Fuente: ${loc}`;
     return `Fuente: Manual Aprueba Medicina · HICS · ${esc(t.title)} · páginas ${t.page_start}–${t.page_end}`;
   }
   if(q?.origin==='exam_derived') return 'Fuente: pregunta basada en examen UNIOVI';
