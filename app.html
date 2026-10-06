@@ -34,6 +34,7 @@
     .site-news-detail p{font-size:.94rem;line-height:1.6;color:#49616a;margin:0}
     @media(max-width:720px){.site-news{padding:20px}.site-news-list{max-height:280px}.site-news-item summary{padding:13px 40px 13px 14px}}
   </style>
+<style id="test-history-styles">.test-history-table{min-width:1100px}#adminTestHistory .admin-table-wrap{max-height:580px;overflow:auto}.test-history-table th{position:sticky;top:0;z-index:1;background:#fff}.test-history-table td:nth-child(4){min-width:200px}.test-history-table td:first-child{min-width:155px}.test-history-table .pill{white-space:nowrap}#answerSaveStatus button{margin-left:8px;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:white;color:var(--ink);cursor:pointer}@media(max-width:760px){#adminTestHistory .admin-table-wrap{max-height:480px}}</style>
 </head>
 <body>
 <section id="auth" class="auth-shell">
@@ -160,7 +161,7 @@
 </div>
 
 <footer aria-label="Información de la versión" style="padding:20px 16px;text-align:center;font-size:.8rem;line-height:1.6;color:#557078;background:#f4f7f8;border-top:1px solid #d8e2e4">
-  Última actualización: <time datetime="2026-10-05">5 de octubre de 2026</time> · Versión 1.0.37
+  Última actualización: <time datetime="2026-10-06">6 de octubre de 2026</time> · Versión 1.0.38
 </footer>
 <dialog id="modal"><button class="close" id="closeModal">×</button><div id="modalContent"></div></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
@@ -282,14 +283,14 @@ async function openPdf(id){const t=topics.find(x=>x.id===id);if(!t)return;if(t.s
 function questionSourceTarget(q,t){if(t?.subject==='fisiologia'){const page=locatorPage(q?.source_locator)||Math.max(1,Number(t?.page_start)||1);return{file:FISIOLOGIA_MANUAL_FILE,page,label:`Manual Aprueba Medicina · Fisiología I · página ${page}`}}if(t?.subject==='introduccion'){const start=Math.max(1,Number(t?.page_start)||1),end=Math.max(start,Number(t?.page_end)||start),loc=String(q?.source_locator||'').trim(),page=locatorPage(loc)||start;return{page,label:loc&&/Manual Aprueba Medicina HICS/i.test(loc)?loc:`Manual Aprueba Medicina · HICS · páginas ${start}–${end}`}}if(t?.subject==='epidemiologia'){const n=Number(String(t.id).replace('epi',''))||1;return{href:`epidemiologia-manual.html#tema-${String(n).padStart(2,'0')}`,label:`Manual Aprueba Medicina · Epidemiología · Tema ${n}`}}if(t?.subject==='histologia'){const n=bchTopicNumber(t),start=BCH_TOPIC_PAGES[n]||Math.max(1,Number(t?.page_start)||1),page=locatorPage(q?.source_locator)||start;return{page,file:BCH_MANUAL_FILE,label:`Manual Aprueba Medicina · Tema ${String(n).padStart(2,'0')} · página ${page}`}}if(t?.subject==='anatomia'){const n=anatomyTopicNumber(t),page=locatorPage(q?.source_locator)||ANATOMIA_TOPIC_PAGES[n]||1;return{page,label:`Manual Aprueba Medicina · página ${page}`}}if(t?.subject==='bioquimica'){const page=locatorPage(q?.source_locator)||Math.max(1,Number(t?.page_start)||1);return{page,label:`Manual Aprueba Medicina · Bioquímica · página ${page}`}}if(t?.subject==='genetica'){const page=locatorPage(q?.source_locator)||Math.max(1,Number(t?.page_start)||1);return{page,label:`Manual Aprueba Medicina · Genética · página ${page}`}}const start=Math.max(1,Number(t?.page_start)||1),locator=String(q?.source_locator||'');const explicit=Number(q?.study_page||q?.temario_page);const locatorMatch=locator.match(/(?:p[aá]g(?:ina)?s?\.?|pages?)\s*(\d+)/i);const locatorIsTemario=q?.origin==='pdf_generated'||(/(?:temario|apuntes|material pdf)/i.test(locator)&&!/examen/i.test(locator));const absolute=Number.isFinite(explicit)&&explicit>0?explicit:(locatorIsTemario&&locatorMatch?Number(locatorMatch[1]):start);if(t?.topic_file){const page=absolute===start?1:Math.max(1,absolute-start+1);return{page,label:absolute===start?'Abrir el apartado de este tema':`PDF del tema · página ${page}`}}return{page:absolute,label:absolute===start?`Inicio del tema · página ${absolute}`:`Temario · página ${absolute}`}}
 async function openQuestionSource(q){const t=topics.find(x=>x.id===q.topic_id);if(!t){alert('Esta pregunta todavía no tiene un apartado del temario asignado.');return}const target=questionSourceTarget(q,t),button=$('#openQuestionSource');if(t.subject==='fisiologia'){await openPrivatePdf(target.file,target.page,button,target.label);return}if(t.subject==='epidemiologia'){window.open(target.href,'_blank');return}if(t.subject==='histologia'){await openPublicPdf(target.file,target.page,button,target.label);return}await openPrivatePdf(t.subject==='anatomia'?ANATOMIA_MANUAL_FILE:(t.topic_file||t.file),target.page,button,target.label)}
 function qForTopic(id){return bank.filter(q=>q.topic_id===id&&q.use_in_topic!==false)}
-async function startTopic(id){const t=topics.find(x=>x.id===id);if(!t)return;const available=qForTopic(id);if(!available.length){showModal('<h2>Test en preparación</h2><p>Este tema todavía no tiene preguntas disponibles.</p>');return}startQuiz(shuffle(available).slice(0,Math.min(50,available.length)),t.title)}
-function startGlobal(subject,count){const all=bank.filter(q=>q.subject===subject&&q.use_in_global!==false);const n=subject==='fisiologia'?100:Math.max(50,Number(count||50));startQuiz(shuffle(all).slice(0,Math.min(n,all.length)),subjects.find(s=>s.id===subject).name+' · Test global')}
-function startQuiz(qs,title){if(!qs.length)return;quiz={qs,title,i:0,score:0,answered:false};showModal('');renderQuestion()}
-function renderQuestion(){const q=quiz.qs[quiz.i],t=topics.find(t=>t.id===q.topic_id);const choices=shuffle((q.options||[]).map((text,index)=>({text,index})));quiz.choices=choices;quiz.answered=false;$('#modalContent').innerHTML=`<p class="kicker">${esc(quiz.title)}</p><p class="quiz-head">Pregunta ${quiz.i+1} de ${quiz.qs.length}${t?' · '+esc(t.title):''}</p><h2>${esc(q.prompt)}</h2><div>${choices.map((o,i)=>`<button class="quiz-option" data-answer="${o.index}"><b>${'ABCD'[i]}</b><span>${esc(o.text)}</span></button>`).join('')}</div><div id="feedback"></div><button class="ghost" id="exitQuiz">Salir del test</button>`;$('#exitQuiz').onclick=()=>{quiz=null;$('#modal').close()}}
+async function startTopic(id){const t=topics.find(x=>x.id===id);if(!t)return;const available=qForTopic(id);if(!available.length){showModal('<h2>Test en preparación</h2><p>Este tema todavía no tiene preguntas disponibles.</p>');return}startQuiz(shuffle(available).slice(0,Math.min(50,available.length)),t.title,'topic')}
+function startGlobal(subject,count){const all=bank.filter(q=>q.subject===subject&&q.use_in_global!==false);const n=subject==='fisiologia'?100:Math.max(50,Number(count||50));startQuiz(shuffle(all).slice(0,Math.min(n,all.length)),subjects.find(s=>s.id===subject).name+' · Test global','global')}
+function startQuiz(qs,title,mode='topic'){if(!qs.length)return;closeTrackedQuiz();quiz={qs,title,mode,i:0,score:0,answered:false,attemptId:createAttemptId(),registered:false,pending:Promise.resolve()};showModal('');registerAndRenderTest(quiz)}
+function renderQuestion(){const q=quiz.qs[quiz.i],t=topics.find(t=>t.id===q.topic_id);const choices=shuffle((q.options||[]).map((text,index)=>({text,index})));quiz.choices=choices;quiz.answered=false;$('#modalContent').innerHTML=`<p class="kicker">${esc(quiz.title)}</p><p class="quiz-head">Pregunta ${quiz.i+1} de ${quiz.qs.length}${t?' · '+esc(t.title):''}</p><h2>${esc(q.prompt)}</h2><div>${choices.map((o,i)=>`<button class="quiz-option" data-answer="${o.index}"><b>${'ABCD'[i]}</b><span>${esc(o.text)}</span></button>`).join('')}</div><div id="feedback"></div><button class="ghost" id="exitQuiz">Salir del test</button>`;$('#exitQuiz').onclick=()=>$('#modal').close()}
 async function answer(v){
   if(!quiz||quiz.answered)return;
   quiz.answered=true;
-  const q=quiz.qs[quiz.i],ok=v===q.answer;
+  const activeQuiz=quiz,q=quiz.qs[quiz.i],ok=v===q.answer;
   if(ok)quiz.score++;
   $$('[data-answer]').forEach(b=>{b.disabled=true;const x=Number(b.dataset.answer);if(x===q.answer)b.classList.add('correct');if(x===v&&!ok)b.classList.add('wrong')});
   const t=topics.find(t=>t.id===q.topic_id);
@@ -298,15 +299,11 @@ async function answer(v){
   if($('#openQuestionSource'))$('#openQuestionSource').onclick=()=>openQuestionSource(q);
   $('#reportWrongAnswer').onclick=()=>openQuestionReport(q);$$('[data-question-quality]').forEach(b=>b.onclick=()=>sendQuestionQuality(q,b.dataset.questionQuality));
   $('#nextQ').onclick=()=>{quiz.i++;quiz.i>=quiz.qs.length?showResult():renderQuestion()};
-  const key=q.external_key||('qb-'+q.id);
-  if(q.topic_id){
-    const {error}=await client.rpc('record_study_answer',{p_question_id:key,p_topic_id:q.topic_id,p_correct:ok});
-    if(error){console.error('No se pudo guardar la respuesta',error);$('#feedback').insertAdjacentHTML('beforeend','<p class="source" style="color:#b33737">No se pudo guardar esta respuesta. Inténtalo de nuevo.</p>')}
-  }
+  await persistQuizAnswer(activeQuiz,q,ok);
 }
 function showResult(){const n=quiz.qs.length;$('#modalContent').innerHTML=`<p class="kicker">TEST COMPLETADO</p><h1>${esc(quiz.title)}</h1><div class="hero" style="margin:20px 0"><div class="stats"><div><strong>${(quiz.score/n*10).toFixed(1).replace('.',',')}</strong><span>nota / 10</span></div><div><strong>${quiz.score}/${n}</strong><span>aciertos</span></div></div></div><button class="primary" id="doneQuiz">Cerrar</button>`;$('#doneQuiz').onclick=()=>{$('#modal').close();quiz=null}}
 async function renderMistakes(){const el=$('#mistakesContent');el.innerHTML='<p>Cargando…</p>';const {data:{session}}=await client.auth.getSession();if(!session)return;const {data,error}=await client.from('study_answers').select('*').eq('user_id',session.user.id).order('answered_at',{ascending:false});if(error){el.innerHTML='<p>No se pudieron cargar tus fallos.</p>';return}const latest=new Map();for(const a of (data||[])){const k=String(a.question_id);if(!latest.has(k))latest.set(k,a)}const ids=new Set([...latest.entries()].filter(([,a])=>!a.correct).map(([k])=>k));const qs=bank.filter(q=>ids.has(String(q.external_key||''))||ids.has('qb-'+q.id)||ids.has(String(q.id)));if(!qs.length){el.innerHTML='<div class="empty"><h2>No tienes fallos pendientes</h2><p>Cuando falles una pregunta aparecerá aquí.</p></div>';return}
-el.innerHTML=`<button class="primary" id="reviewAll" style="max-width:280px">Repasar ${qs.length} fallos</button><div class="topic-list">${qs.map(q=>`<div class="mistake-row"><b>${esc(q.prompt)}</b><div class="meta">${esc(topics.find(t=>t.id===q.topic_id)?.title||'')}</div></div>`).join('')}</div>`;$('#reviewAll').onclick=()=>startQuiz(qs,'Repaso de fallos')}
+el.innerHTML=`<button class="primary" id="reviewAll" style="max-width:280px">Repasar ${qs.length} fallos</button><div class="topic-list">${qs.map(q=>`<div class="mistake-row"><b>${esc(q.prompt)}</b><div class="meta">${esc(topics.find(t=>t.id===q.topic_id)?.title||'')}</div></div>`).join('')}</div>`;$('#reviewAll').onclick=()=>startQuiz(qs,'Repaso de fallos','mistakes')}
 async function submitUserFeedback(category,message,q=null){
   const text=String(message||'').trim();
   if(text.length<2)throw new Error('Escribe un mensaje un poco más detallado.');
@@ -401,11 +398,125 @@ async function deleteAdminUser(id){if(!confirm('¿Eliminar definitivamente este 
 async function resetAdminUser(id){const u=findAdminUser(id);if(!u?.email)return;try{const {error}=await client.auth.resetPasswordForEmail(u.email,{redirectTo:location.origin});if(error)throw error;alert('Se ha solicitado el correo de restablecimiento para '+u.email+'.')}catch(e){alert('No se pudo solicitar: '+e.message)}}
 async function changeReaderAccess(userId,action){let error;if(action==='grant')({error}=await client.from('material_readers').insert({user_id:userId}));else({error}=await client.from('material_readers').delete().eq('user_id',userId));if(error){alert(error.message);return}await renderAdminDashboard()}
 
-function renderAdminActivity(){
- const el=$('#adminActivity');if(!el||!adminData)return;const names=new Map(adminData.profiles.map(p=>[p.id,p.full_name||'Usuario']));
- const byUser=new Map();for(const a of adminData.answers){const x=byUser.get(a.user_id)||{total:0,wrong:0,last:null};x.total++;if(!a.correct)x.wrong++;if(!x.last)x.last=a.answered_at;byUser.set(a.user_id,x)}
- el.innerHTML=`<div class="admin-stats">${adminData.profiles.map(p=>{const l=loginStats().get(p.id)||{count:0,last:null},a=byUser.get(p.id)||{total:0,wrong:0,last:null};return `<div class="admin-stat"><strong>${l.count}</strong><span>${esc(p.full_name||'Usuario')} · accesos</span><div class="source">${a.total} respuestas · ${a.wrong} fallos</div></div>`}).join('')}</div><h3>Últimos accesos</h3><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Fecha</th><th>Usuario</th><th>Página</th><th>Dispositivo</th></tr></thead><tbody>${adminData.logins.slice(0,100).map(l=>`<tr><td>${fmtDate(l.logged_at)}</td><td>${esc(names.get(l.user_id)||'Usuario')}</td><td>${esc(l.page||'/')}</td><td>${esc(l.device||'—')}</td></tr>`).join('')}</tbody></table></div><h3>Actividad de estudio reciente</h3><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Fecha</th><th>Usuario</th><th>Tema</th><th>Resultado</th></tr></thead><tbody>${adminData.answers.slice(0,100).map(a=>`<tr><td>${fmtDate(a.answered_at)}</td><td>${esc(names.get(a.user_id)||'Usuario')}</td><td>${esc(topics.find(t=>t.id===a.topic_id)?.title||a.topic_id)}</td><td>${a.correct?'<span class="access-yes">Correcta</span>':'<span class="danger">Fallo</span>'}</td></tr>`).join('')}</tbody></table></div>`;
+// Test tracking uses an attempt per test; latest answers continue to power Mis fallos.
+let testSessionToken=null,adminActivityUser='',adminActivityPeriod='all',adminTestsPage=0,adminTestsRequest=0;
+function questionKey(q){return q.external_key||('qb-'+q.id)}
+function createAttemptId(){return crypto.randomUUID()}
+async function beginTestAttempt(q){
+  const {data,error}=await client.rpc('start_test_attempt',{p_id:q.attemptId,p_mode:q.mode,p_title:q.title,p_questions:q.qs.map(x=>({question_id:questionKey(x),topic_id:x.topic_id}))});
+  if(error)throw error;
+  q.registered=true;
+  return data;
 }
+function showTestStartError(q){
+  if(quiz!==q)return;
+  $('#modalContent').innerHTML='<h2>No se pudo iniciar el registro del test</h2><p>Comprueba la conexión y vuelve a intentarlo.</p><button class="primary" id="retryStartTest">Reintentar</button><button class="ghost" id="cancelStartTest">Cerrar</button>';
+  $('#retryStartTest').onclick=()=>registerAndRenderTest(q);
+  $('#cancelStartTest').onclick=()=>$('#modal').close();
+}
+async function registerAndRenderTest(q){
+  if(quiz!==q)return;
+  $('#modalContent').innerHTML='<h2>Preparando test…</h2><p>Guardando el inicio del intento.</p>';
+  q.pending=beginTestAttempt(q);
+  try{await q.pending;if(quiz===q)renderQuestion();}
+  catch(e){console.error('No se pudo iniciar el test',e);showTestStartError(q);}
+}
+async function closeTrackedQuiz(){
+  const q=quiz;if(!q)return;quiz=null;
+  try{await q.pending;}catch{}
+  if(!q.registered)return;
+  const {error}=await client.rpc('close_test_attempt',{p_attempt_id:q.attemptId});
+  if(error)console.error('No se pudo confirmar el cierre del test',error);
+}
+async function saveTrackedAnswer(q,question,correct){
+  const {error}=await client.rpc('record_test_attempt_answer',{p_attempt_id:q.attemptId,p_question_id:questionKey(question),p_topic_id:question.topic_id,p_correct:correct});
+  if(error)throw error;
+}
+async function persistQuizAnswer(q,question,correct){
+  q.saving=true;
+  if(quiz===q&&$('#nextQ'))$('#nextQ').disabled=true;
+  const old=$('#answerSaveStatus');if(old)old.remove();
+  if(quiz===q&&$('#feedback'))$('#feedback').insertAdjacentHTML('beforeend','<p id="answerSaveStatus" class="source" role="status">Guardando respuesta…</p>');
+  q.pending=saveTrackedAnswer(q,question,correct);
+  try{
+    await q.pending;
+    if(quiz===q&&$('#answerSaveStatus')){$('#answerSaveStatus').textContent='Respuesta guardada.';$('#nextQ').disabled=false;}
+  }catch(e){
+    console.error('No se pudo guardar la respuesta',e);
+    if(quiz===q&&$('#answerSaveStatus')){
+      $('#answerSaveStatus').innerHTML='No se pudo guardar esta respuesta. <button type="button" id="retrySaveAnswer">Reintentar</button>';
+      $('#retrySaveAnswer').onclick=()=>persistQuizAnswer(q,question,correct);
+    }
+  }finally{q.saving=false;}
+}
+// A best-effort close on navigation. If it cannot arrive, the admin sees an unconfirmed closure.
+window.addEventListener('pagehide',e=>{
+  const q=quiz;if(e.persisted||!q?.registered||!testSessionToken||q.saving)return;
+  fetch(SUPABASE_URL+'/rest/v1/rpc/close_test_attempt',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+testSessionToken,'Content-Type':'application/json'},body:JSON.stringify({p_attempt_id:q.attemptId}),keepalive:true}).catch(()=>{});
+});
+
+function activitySince(period){
+  const now=new Date();
+  if(period==='today'){
+    const date=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Madrid'}).format(now);
+    const midnight=new Date(date+'T00:00:00Z');
+    const hour=Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Madrid',hour:'2-digit',hourCycle:'h23'}).format(midnight));
+    return new Date(midnight.getTime()-hour*3600000).toISOString();
+  }
+  return period==='7'||period==='30'?new Date(now.getTime()-Number(period)*86400000).toISOString():null;
+}
+function activityDate(value){return value?new Date(value).toLocaleString('es-ES',{timeZone:'Europe/Madrid',dateStyle:'short',timeStyle:'short'}):'—'}
+function shortDevice(value){
+  const s=String(value||'');if(!s)return '—';
+  const os=/Android/i.test(s)?'Android':/iPhone|iPad/i.test(s)?'iOS':/Windows/i.test(s)?'Windows':/Macintosh/i.test(s)?'macOS':/Linux/i.test(s)?'Linux':'Otro';
+  const browser=/Edg\//.test(s)?'Edge':/OPR\//.test(s)?'Opera':/Firefox\//.test(s)?'Firefox':/Chrome\//.test(s)?'Chrome':/Safari\//.test(s)?'Safari':'Navegador';
+  return os+' · '+browser+' · '+(/iPad|Tablet/i.test(s)?'Tablet':/Mobile|iPhone|Android/i.test(s)?'Móvil':'PC');
+}
+function attemptStatus(a){
+  if(a.status==='completed')return 'Completado';
+  if(a.status==='abandoned')return 'Abandonado';
+  return Date.now()-new Date(a.last_activity_at).getTime()>30*60000?'Sin cierre confirmado':'En curso';
+}
+function attemptPercentage(a){return a.answered_count?(a.correct_count/a.answered_count*100).toLocaleString('es-ES',{maximumFractionDigits:1})+' %':'—'}
+function activityMatches(row,dateField,since){return (!adminActivityUser||row.user_id===adminActivityUser)&&(!since||row[dateField]>=since)}
+function renderAdminActivity(){
+  const el=$('#adminActivity');if(!el||!adminData||profile?.role!=='admin')return;
+  const names=new Map(adminData.profiles.map(p=>[p.id,p.full_name||'Usuario'])),since=activitySince(adminActivityPeriod);
+  const logins=adminData.logins.filter(l=>activityMatches(l,'logged_at',since));
+  const answers=adminData.answers.filter(a=>activityMatches(a,'answered_at',since));
+  const byUser=new Map(),logs=new Map();
+  for(const a of answers){const x=byUser.get(a.user_id)||{total:0,correct:0,wrong:0};x.total++;if(a.correct)x.correct++;else x.wrong++;byUser.set(a.user_id,x);}
+  for(const l of logins){const x=logs.get(l.user_id)||{count:0,last:null};x.count++;if(!x.last)x.last=l.logged_at;logs.set(l.user_id,x);}
+  const users=adminData.profiles.filter(p=>!adminActivityUser||p.id===adminActivityUser);
+  el.innerHTML=`<div class="admin-toolbar"><label>Usuario<select id="activityUser"><option value="">Todos los usuarios</option>${adminData.profiles.map(p=>`<option value="${esc(p.id)}" ${p.id===adminActivityUser?'selected':''}>${esc(p.full_name||'Usuario')}</option>`).join('')}</select></label><label>Periodo<select id="activityPeriod">${[['all','Todo'],['today','Hoy'],['7','Últimos 7 días'],['30','Últimos 30 días']].map(([v,t])=>`<option value="${v}" ${v===adminActivityPeriod?'selected':''}>${t}</option>`).join('')}</select></label><button id="refreshActivity" type="button">Actualizar</button></div><p class="source">Horas de Madrid. El resumen usa los últimos ${adminData.logins.length} accesos cargados de ${adminData.loginCount} y ${adminData.answers.length} últimas respuestas por pregunta de ${adminData.answerCount}. Las respuestas anteriores al historial no permiten identificar cada test.</p><div class="admin-stats">${users.map(p=>{const l=logs.get(p.id)||{count:0,last:null},a=byUser.get(p.id)||{total:0,correct:0,wrong:0};return `<div class="admin-stat"><strong>${l.count}</strong><span>${esc(names.get(p.id))} · accesos</span><div class="source">Último acceso: ${activityDate(l.last)}</div><div class="source">${a.total} respuestas · ${a.correct} aciertos · ${a.wrong} fallos</div><div class="source">${a.total?attemptPercentage({answered_count:a.total,correct_count:a.correct}):'—'} aciertos</div></div>`;}).join('')||'<p>No hay usuarios para este filtro.</p>'}</div><h3>Historial de tests por usuario</h3><p class="admin-help">Intentos registrados desde la incorporación del historial. El porcentaje se calcula sobre las preguntas contestadas. «Sin cierre confirmado» indica que no se recibió el cierre y han pasado más de 30 minutos sin respuestas.</p><div id="adminTestHistory" aria-live="polite"></div><h3>Últimos accesos</h3><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Fecha</th><th>Usuario</th><th>Página</th><th>Dispositivo</th></tr></thead><tbody>${logins.slice(0,100).map(l=>`<tr><td>${activityDate(l.logged_at)}</td><td>${esc(names.get(l.user_id)||'Usuario')}</td><td>${esc(String(l.page||'/').split(/[?#]/)[0])}</td><td>${esc(shortDevice(l.device))}</td></tr>`).join('')||'<tr><td colspan="4">No hay accesos en los datos cargados para este filtro.</td></tr>'}</tbody></table></div><h3>Actividad de estudio reciente</h3><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Fecha</th><th>Usuario</th><th>Tema</th><th>Resultado</th></tr></thead><tbody>${answers.slice(0,100).map(a=>`<tr><td>${activityDate(a.answered_at)}</td><td>${esc(names.get(a.user_id)||'Usuario')}</td><td>${esc(topics.find(t=>t.id===a.topic_id)?.title||a.topic_id)}</td><td>${a.correct?'<span class="access-yes">Correcta</span>':'<span class="danger">Fallo</span>'}</td></tr>`).join('')||'<tr><td colspan="4">No hay respuestas en los datos cargados para este filtro.</td></tr>'}</tbody></table></div>`;
+  $('#activityUser').onchange=e=>{adminActivityUser=e.target.value;adminTestsPage=0;renderAdminActivity();};
+  $('#activityPeriod').onchange=e=>{adminActivityPeriod=e.target.value;adminTestsPage=0;renderAdminActivity();};
+  $('#refreshActivity').onclick=()=>{adminTestsPage=0;renderAdminDashboard();};
+  renderAdminTestHistory();
+}
+async function renderAdminTestHistory(){
+  const el=$('#adminTestHistory');if(!el||profile?.role!=='admin')return;
+  const request=++adminTestsRequest,page=adminTestsPage,pageSize=50,since=activitySince(adminActivityPeriod);
+  el.innerHTML='<p>Cargando historial de tests…</p>';
+  let query=client.from('study_test_attempts').select('id,user_id,mode,subject,topic_id,title,question_count,answered_count,correct_count,wrong_count,status,started_at,last_activity_at,ended_at',{count:'exact'}).order('started_at',{ascending:false}).order('id',{ascending:false});
+  if(adminActivityUser)query=query.eq('user_id',adminActivityUser);
+  if(since)query=query.gte('started_at',since);
+  try{
+    const {data,error,count}=await query.range(page*pageSize,(page+1)*pageSize-1);
+    if(request!==adminTestsRequest||el!==$('#adminTestHistory')||profile?.role!=='admin')return;
+    if(error)throw error;
+    const names=new Map(adminData.profiles.map(p=>[p.id,p.full_name||'Usuario']));
+    const rows=data||[];
+    el.innerHTML=`<p class="source">${count||0} intentos encontrados.</p><div class="admin-table-wrap"><table class="admin-table test-history-table"><thead><tr><th>Inicio / fin</th><th>Usuario</th><th>Asignatura</th><th>Tema / Test</th><th>Contestadas / Total</th><th>Aciertos</th><th>Fallos</th><th>Porcentaje</th><th>Estado</th></tr></thead><tbody>${rows.map(a=>`<tr><td>${activityDate(a.started_at)}<div class="source">${a.ended_at?'Fin: '+activityDate(a.ended_at):'Última actividad: '+activityDate(a.last_activity_at)}</div></td><td>${esc(names.get(a.user_id)||'Usuario')}</td><td>${esc(subjects.find(s=>s.id===a.subject)?.name||(a.subject==='mixed'?'Varias asignaturas':a.subject))}</td><td>${esc(a.title)}<div class="source">${a.mode==='global'?'Test global':a.mode==='mistakes'?'Repaso de fallos':'Test de tema'}</div></td><td>${a.answered_count} / ${a.question_count}</td><td>${a.correct_count}</td><td>${a.wrong_count}</td><td>${attemptPercentage(a)}</td><td><span class="pill ${a.status==='completed'?'access-yes':''}">${attemptStatus(a)}</span></td></tr>`).join('')||'<tr><td colspan="9">Todavía no hay tests registrados para este filtro.</td></tr>'}</tbody></table></div><div class="admin-pager"><button id="previousTestPage" ${page===0?'disabled':''}>← Anterior</button><span>Página ${page+1} de ${Math.max(1,Math.ceil((count||0)/pageSize))}</span><button id="nextTestPage" ${(page+1)*pageSize>=(count||0)?'disabled':''}>Siguiente →</button></div>`;
+    $('#previousTestPage').onclick=()=>{adminTestsPage--;renderAdminTestHistory();};
+    $('#nextTestPage').onclick=()=>{adminTestsPage++;renderAdminTestHistory();};
+  }catch(e){
+    if(request!==adminTestsRequest||el!==$('#adminTestHistory')||profile?.role!=='admin')return;
+    console.error('No se pudo cargar el historial',e);el.innerHTML='<p class="errormsg">No se pudo cargar el historial de tests.</p><button id="retryTestHistory">Reintentar</button>';
+    $('#retryTestHistory').onclick=renderAdminTestHistory;
+  }
+}
+
 
 function questionFilters(){return {q:$('#adminQuestionSearch')?.value?.toLowerCase()||'',subject:$('#adminQuestionSubject')?.value||'',topic:$('#adminQuestionTopic')?.value||'',difficulty:$('#adminQuestionDifficulty')?.value||'',status:$('#adminQuestionStatus')?.value||''}}
 function filteredQuestions(){const f=questionFilters();return bank.filter(q=>(!f.q||String(q.prompt).toLowerCase().includes(f.q)||String(q.explanation||'').toLowerCase().includes(f.q))&&(!f.subject||q.subject===f.subject)&&(!f.topic||q.topic_id===f.topic)&&(!f.difficulty||q.difficulty===f.difficulty)&&(!f.status||q.status===f.status))}
@@ -516,16 +627,16 @@ async function refreshAdminCount(){if(profile?.role!=='admin')return;const {coun
 function showView(name){if(name==='admin'&&profile?.role!=='admin')return;$$('.view').forEach(v=>v.classList.add('hidden'));$('#'+name+'View').classList.remove('hidden');$$('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.view===name));if(name==='mistakes')renderMistakes();if(name==='feedback')renderMyFeedback();if(name==='admin')renderAdminDashboard()}
 function showModal(html){$('#modalContent').innerHTML=html;if(!$('#modal').open)$('#modal').showModal()}
 async function signedIn(session){$('#auth').classList.add('hidden');$('#app').classList.remove('hidden');const {data}=await client.from('profiles').select('*').eq('id',session.user.id).maybeSingle();profile=data||{full_name:session.user.email,role:'student'};$('#userName').textContent=profile.full_name||session.user.email;$('#adminTab').classList.toggle('hidden',profile.role!=='admin');if(profile.role==='admin')refreshAdminCount();try{await loadData()}catch(e){console.error(e);showModal('<h2>No se pudieron cargar los materiales</h2><p>Recarga la página. Si continúa, revisaremos el acceso a la base de datos.</p>')}}
-function signedOut(){$('#app').classList.add('hidden');$('#auth').classList.remove('hidden');profile=null;topics=[];bank=[];adminData=null}
+function signedOut(){testSessionToken=null;quiz=null;adminActivityUser='';adminActivityPeriod='all';adminTestsPage=0;adminTestsRequest++;$('#app').classList.add('hidden');$('#auth').classList.remove('hidden');profile=null;topics=[];bank=[];adminData=null}
 async function recordLogin(session){if(!session?.user?.id)return;const {error}=await client.from('login_events').insert({user_id:session.user.id,device:navigator.userAgent||'',page:location.pathname||'/'});if(error)console.error(error)}
 $('#loginForm').onsubmit=async e=>{e.preventDefault();$('#authMessage').textContent='Entrando…';const {data,error}=await client.auth.signInWithPassword({email:$('#loginEmail').value,password:$('#loginPassword').value});if(!error&&data?.session)recordLogin(data.session);$('#authMessage').textContent=error?error.message:''}
 $('#registerForm').onsubmit=async e=>{e.preventDefault();$('#authMessage').textContent='Creando cuenta…';const {data,error}=await client.auth.signUp({email:$('#registerEmail').value,password:$('#registerPassword').value,options:{data:{full_name:$('#registerName').value}}});if(!error&&data?.session)recordLogin(data.session);$('#authMessage').textContent=error?error.message:'Cuenta creada. Si se requiere confirmación, revisa tu correo.'}
 $('#toggleAuth').onclick=()=>{registerMode=!registerMode;$('#loginForm').classList.toggle('hidden',registerMode);$('#registerForm').classList.toggle('hidden',!registerMode);$('#authTitle').textContent=registerMode?'Crear cuenta':'Entrar al campus';$('#toggleAuth').textContent=registerMode?'Ya tengo cuenta':'Crear una cuenta';$('#authMessage').textContent=''}
-$('#logout').onclick=()=>client.auth.signOut();$('#closeModal').onclick=()=>$('#modal').close();$$('.tabs button').forEach(b=>b.onclick=()=>showView(b.dataset.view));
+$('#logout').onclick=async()=>{await closeTrackedQuiz();await client.auth.signOut()};$('#modal').addEventListener('close',closeTrackedQuiz);$('#closeModal').onclick=()=>$('#modal').close();$$('.tabs button').forEach(b=>b.onclick=()=>showView(b.dataset.view));
 $('#feedbackForm').onsubmit=async e=>{e.preventDefault();const st=$('#feedbackStatus');st.className='message';st.textContent='Enviando…';try{await submitUserFeedback($('#feedbackCategory').value,$('#feedbackMessage').value);$('#feedbackMessage').value='';st.className='okmsg';st.textContent='Mensaje enviado al administrador.';await renderMyFeedback();}catch(err){st.className='errormsg';st.textContent=err.message||'No se pudo enviar el mensaje.';}};
 document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-bch-manual'))openPublicPdf(BCH_MANUAL_FILE,1,null,'');if(b.dataset.openSubject)openSubject(b.dataset.openSubject);if(b.dataset.summary)openSummary(b.dataset.summary);if(b.dataset.pdf)openPdf(b.dataset.pdf);if(b.dataset.topicTest)startTopic(b.dataset.topicTest);if(b.dataset.answer!==undefined)answer(Number(b.dataset.answer));if(b.dataset.adminPane)switchAdminPane(b.dataset.adminPane);if(b.dataset.readerUser)changeReaderAccess(b.dataset.readerUser,b.dataset.readerAction);if(b.dataset.userEdit)openUserEditor(b.dataset.userEdit);if(b.dataset.userToggle)toggleAdminUser(b.dataset.userToggle,b.dataset.userAction);if(b.dataset.userReset)resetAdminUser(b.dataset.userReset);if(b.dataset.userDelete)deleteAdminUser(b.dataset.userDelete);if(b.dataset.questionEdit)openQuestionEditor(b.dataset.questionEdit);if(b.dataset.questionCopy)openQuestionEditor(b.dataset.questionCopy,true);if(b.dataset.questionDelete)deleteQuestion(b.dataset.questionDelete);if(b.dataset.materialDelete)deleteMaterial(b.dataset.materialDelete);if(b.dataset.topicMove)moveTopic(b.dataset.topicMove,b.dataset.dir);if(b.dataset.feedbackNote)saveFeedbackNote(Number(b.dataset.feedbackNote));if(b.dataset.feedbackId&&b.dataset.feedbackStatus&&profile?.role==='admin'){b.disabled=true;const upd={status:b.dataset.feedbackStatus};if(b.dataset.feedbackStatus==='resolved')upd.resolved_at=new Date().toISOString();const {error}=await client.from('user_feedback').update(upd).eq('id',Number(b.dataset.feedbackId));if(error){alert(error.message);b.disabled=false}else{await renderAdminInbox();await refreshAdminCount()}}});
-client.auth.onAuthStateChange((event,session)=>{if(session)signedIn(session);else signedOut()});
-client.auth.getSession().then(({data})=>data.session?signedIn(data.session):signedOut());
+client.auth.onAuthStateChange((event,session)=>{testSessionToken=session?.access_token||null;if(session)signedIn(session);else signedOut()});
+client.auth.getSession().then(({data})=>{testSessionToken=data.session?.access_token||null;return data.session?signedIn(data.session):signedOut()});
 </script>
 </body>
 </html>
